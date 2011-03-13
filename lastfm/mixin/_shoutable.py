@@ -6,6 +6,7 @@ __license__ = "GNU Lesser General Public License"
 __package__ = "lastfm.mixin"
 
 from lastfm.decorators import cached_property, top_property
+from lastfm.util import UTC
 
 def shoutable(cls):
     @cached_property
@@ -20,7 +21,7 @@ def shoutable(cls):
                       body = s.findtext('body'),
                       author = User(self._api, name = s.findtext('author')),
                       date = s.findtext('date') and s.findtext('date').strip() and \
-                            datetime(*(time.strptime(s.findtext('date').strip(), '%a, %d %b %Y %H:%M:%S')[0:6]))
+                            datetime(*(time.strptime(s.findtext('date').strip(), '%a, %d %b %Y %H:%M:%S')[0:6])).replace(tzinfo = UTC)
                       )
                 for s in data.findall('shout')
                 ]

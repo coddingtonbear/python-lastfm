@@ -22,7 +22,7 @@ located at http://ws.audioscrobbler.com/2.0/ .""",
 )
 
 SETUPTOOLS_METADATA = dict(
-	install_requires = ['setuptools', 'decorator'],
+	install_requires = ['setuptools', 'decorator', 'python-dateutil'],
 	include_package_data = True,
     tests_require = ['wsgi_intercept'],
 	classifiers = [

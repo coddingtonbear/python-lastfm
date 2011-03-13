@@ -8,6 +8,7 @@ __package__ = "lastfm"
 
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
+from lastfm.util import UTC
 from lastfm.decorators import cached_property, top_property
 
 @mixin("crawlable", "shoutable", "sharable",
@@ -351,7 +352,7 @@ class Artist(LastfmBase):
                                         datetime(*(time.strptime(
                                                               data.findtext('bio/published').strip(),
                                                               '%a, %d %b %Y %H:%M:%S +0000'
-                                                              )[0:6])),
+                                                              )[0:6])).replace(tzinfo = UTC),
                          summary = data.findtext('bio/summary'),
                          content = data.findtext('bio/content')
                          )

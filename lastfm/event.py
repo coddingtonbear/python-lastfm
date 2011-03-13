@@ -8,6 +8,7 @@ __package__ = "lastfm"
 
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
+from lastfm.util import UTC
 
 @mixin("crawlable", "shoutable", "sharable",
     "cacheable", "property_adder")
@@ -124,7 +125,7 @@ class Event(LastfmBase):
                     ),
                     '%a, %d %b %Y %H:%M'
                 )[0:6])
-            )
+            ).replace(tzinfo = UTC)
         else:
             try:
                 start_date = datetime(*(
@@ -132,7 +133,7 @@ class Event(LastfmBase):
                         data.findtext('startDate').strip(),
                         '%a, %d %b %Y %H:%M:%S'
                     )[0:6])
-                )
+                ).replace(tzinfo = UTC)
             except ValueError:
                 try:
                     start_date = datetime(*(
@@ -140,7 +141,7 @@ class Event(LastfmBase):
                             data.findtext('startDate').strip(),
                             '%a, %d %b %Y'
                         )[0:6])
-                    )
+                    ).replace(tzinfo = UTC)
                 except ValueError:
                     pass
 

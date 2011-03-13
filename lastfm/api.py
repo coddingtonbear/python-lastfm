@@ -7,7 +7,7 @@ __license__ = "GNU Lesser General Public License"
 __package__ = "lastfm"
 
 from threading import Lock
-from lastfm.util import Wormhole, logging
+from lastfm.util import Wormhole, logging, UTC
 from lastfm.decorators import cached_property, async_callback
 _lock = Lock()
 
@@ -73,7 +73,7 @@ class Api(object):
         self._input_encoding = input_encoding
         self._no_cache = no_cache
         self._logfile = logfile
-        self._last_fetch_time = datetime.now()
+        self._last_fetch_time = datetime.utcnow().replace(tzinfo = UTC)
         
         if debug is not None:
             if debug in Api.DEBUG_LEVELS:
@@ -667,13 +667,13 @@ class Api(object):
 
     def _read_url_data(self, opener, url, data = None):
         with _lock:
-            now = datetime.now()
+            now = datetime.utcnow().replace(tzinfo = UTC)
             delta = now - self._last_fetch_time
             delta = delta.seconds + float(delta.microseconds)/1000000
             if delta < Api.FETCH_INTERVAL:
                 time.sleep(Api.FETCH_INTERVAL - delta)
             url_data = opener.open(url, data).read()
-            self._last_fetch_time = datetime.now()
+            self._last_fetch_time = datetime.utcnow().replace(tzinfo = UTC)
         return url_data
 
     @Wormhole.entrance('lfm-api-raw-data')

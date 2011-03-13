@@ -8,6 +8,7 @@ __package__ = "lastfm"
 
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
+from lastfm.util import UTC
 from lastfm.decorators import cached_property, top_property
 
 @mixin("crawlable", "taggable", "searchable", 
@@ -174,7 +175,7 @@ class Album(LastfmBase):
         self._mbid = data.findtext('mbid')
         self._url = data.findtext('url')
         self._release_date = data.findtext('releasedate') and data.findtext('releasedate').strip() and \
-                            datetime(*(time.strptime(data.findtext('releasedate').strip(), '%d %b %Y, 00:00')[0:6]))
+                            datetime(*(time.strptime(data.findtext('releasedate').strip(), '%d %b %Y, 00:00')[0:6])).replace(tzinfo = UTC)
         self._image = dict([(i.get('size'), i.text) for i in data.findall('image')])
         if not self._stats:
             self._stats = Stats(

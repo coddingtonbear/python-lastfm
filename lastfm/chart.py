@@ -8,7 +8,7 @@ __package__ = "lastfm"
 from functools import reduce
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
-from lastfm.util import logging
+from lastfm.util import logging, UTC
 from operator import xor
 
 @mixin("cacheable", "property_adder")
@@ -121,8 +121,8 @@ class WeeklyChart(Chart):
     def create_from_data(api, subject, data):
         return WeeklyChart(
                      subject = subject,
-                     start = datetime.utcfromtimestamp(int(data.attrib['from'])),
-                     end = datetime.utcfromtimestamp(int(data.attrib['to']))
+                     start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
+                     end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC)
                      )
         
     @staticmethod
@@ -144,13 +144,13 @@ class WeeklyAlbumChart(AlbumChart, WeeklyChart):
     def create_from_data(api, subject, data):
         w = WeeklyChart(
                         subject = subject,
-                        start = datetime.utcfromtimestamp(int(data.attrib['from'])),
-                        end = datetime.utcfromtimestamp(int(data.attrib['to'])),
+                        start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
+                        end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
                         )
         return WeeklyAlbumChart(
             subject = subject,
-            start = datetime.utcfromtimestamp(int(data.attrib['from'])),
-            end = datetime.utcfromtimestamp(int(data.attrib['to'])),
+            start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
+            end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
             stats = Stats(
                 subject = subject,
                 playcount = reduce(
@@ -190,8 +190,8 @@ class WeeklyArtistChart(ArtistChart, WeeklyChart):
     def create_from_data(api, subject, data):
         w = WeeklyChart(
                         subject = subject,
-                        start = datetime.utcfromtimestamp(int(data.attrib['from'])),
-                        end = datetime.utcfromtimestamp(int(data.attrib['to'])),
+                        start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
+                        end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
                         )
         count_attribute = data.find('artist').findtext('playcount') and 'playcount' or 'weight'
         def get_count_attribute(artist):
@@ -203,8 +203,8 @@ class WeeklyArtistChart(ArtistChart, WeeklyChart):
             
         return WeeklyArtistChart(
             subject = subject,
-            start = datetime.utcfromtimestamp(int(data.attrib['from'])),
-            end = datetime.utcfromtimestamp(int(data.attrib['to'])),
+            start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
+            end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
             stats = Stats(
                           subject = subject,
                           **get_count_attribute_sum(data.findall('artist'))
@@ -232,13 +232,13 @@ class WeeklyTrackChart(TrackChart, WeeklyChart):
     def create_from_data(api, subject, data):
         w = WeeklyChart(
             subject = subject,
-            start = datetime.utcfromtimestamp(int(data.attrib['from'])),
-            end = datetime.utcfromtimestamp(int(data.attrib['to'])),
+            start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
+            end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
             )
         return WeeklyTrackChart(
             subject = subject,
-            start = datetime.utcfromtimestamp(int(data.attrib['from'])),
-            end = datetime.utcfromtimestamp(int(data.attrib['to'])),
+            start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
+            end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
             stats = Stats(
                 subject = subject,
                 playcount = reduce(

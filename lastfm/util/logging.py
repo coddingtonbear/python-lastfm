@@ -7,7 +7,7 @@ __package__ = "lastfm.util"
 
 from contextlib import contextmanager, nested
 from threading import Lock
-from lastfm.util import Wormhole
+from lastfm.util import Wormhole, UTC
 from datetime import datetime
 import sys
 
@@ -42,24 +42,24 @@ def logfile():
 def log_url(url, *args, **kwargs):
     if api._debug >= api.DEBUG_LEVELS['LOW']:
         with nested(logfile(), lock) as (log, l):
-            log.write("{0}: URL fetched: {1}\n".format(datetime.now(), url))
+            log.write("{0}: URL fetched: {1}\n".format(datetime.utcnow().replace(tzinfo=UTC), url))
         
 @Wormhole.exit('lfm-obcache-register')
 def log_object_registration((inst, already_registered), *args, **kwargs):
     if api._debug >= api.DEBUG_LEVELS['MEDIUM']:
         with nested(logfile(), lock) as (log, l):
             if already_registered:
-                log.write("{0}: already registered: {1}\n".format(datetime.now(), repr(inst)))
+                log.write("{0}: already registered: {1}\n".format(datetime.utcnow().replace(tzinfo=UTC), repr(inst)))
             else:
-                log.write("{0}: not already registered: {1}\n".format(datetime.now(), inst.__class__))
+                log.write("{0}: not already registered: {1}\n".format(datetime.utcnow().replace(tzinfo=UTC), inst.__class__))
 
 @Wormhole.exit('lfm-api-raw-data')
 def log_raw_data(raw_data, *args, **kwargs):
     if api._debug >= api.DEBUG_LEVELS['HIGH']:
         with nested(logfile(), lock) as (log, l):
-            log.write("{0}: RAW DATA\n {1}\n".format(datetime.now(), raw_data))
+            log.write("{0}: RAW DATA\n {1}\n".format(datetime.utcnow().replace(tzinfo=UTC), raw_data))
             
 def log_silenced_exceptions(ex):
     if api._debug >= api.DEBUG_LEVELS['LOW']:
         with nested(logfile(), lock) as (log, l):
-            log.write("{0}: Silenced Exception: {1}\n".format(datetime.now(), ex))
+            log.write("{0}: Silenced Exception: {1}\n".format(datetime.utcnow().replace(tzinfo=UTC), ex))

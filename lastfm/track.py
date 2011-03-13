@@ -7,6 +7,7 @@ __package__ = "lastfm"
 
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
+from lastfm.util import UTC
 from lastfm.decorators import cached_property, top_property
 
 @mixin("crawlable", "sharable", "taggable",
@@ -253,7 +254,7 @@ class Track(LastfmBase):
                          published = datetime(*(time.strptime(
                                                               data.findtext('wiki/published').strip(),
                                                               '%a, %d %b %Y %H:%M:%S +0000'
-                                                              )[0:6])),
+                                                              )[0:6])).replace(tzinfo = UTC),
                          summary = data.findtext('wiki/summary'),
                          content = data.findtext('wiki/content')
                          )

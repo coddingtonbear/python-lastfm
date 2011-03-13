@@ -8,6 +8,9 @@ from lastfm.util._lazylist import lazylist
 from lastfm.util.safelist import SafeList
 from lastfm.util.filecache import FileCache
 from lastfm.util.objectcache import ObjectCache
+from dateutil import zoneinfo
 
 __all__ = ['Wormhole', 'lazylist', 'SafeList',
-           'FileCache', 'ObjectCache']
+           'FileCache', 'ObjectCache', 'UTC']
+
+UTC = zoneinfo.gettz('UTC')

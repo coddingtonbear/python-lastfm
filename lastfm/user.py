@@ -7,6 +7,7 @@ __package__ = "lastfm"
 
 from lastfm.base import LastfmBase
 from lastfm.mixin import chartable, mixin
+from lastfm.util import UTC
 import lastfm.playlist
 from lastfm.decorators import (
     cached_property, top_property, authentication_required, depaginate)
@@ -189,7 +190,7 @@ class User(LastfmBase):
                                                               p.findtext('date').strip(),
                                                               '%Y-%m-%dT%H:%M:%S'
                                                               )[0:6])
-                              ),
+                              ).replace(tzinfo = UTC),
                               size = int(p.findtext('size')),
                               creator = self
                               )
@@ -228,7 +229,7 @@ class User(LastfmBase):
                             t.findtext('date').strip(),
                             '%d %b %Y, %H:%M'
                             )[0:6])
-                        )
+                        ).replace(tzinfo = UTC)
                     )
                 for t in data.findall('track')
                 ]
@@ -270,7 +271,7 @@ class User(LastfmBase):
                                                          t.findtext('date').strip(),
                                                          '%d %b %Y, %H:%M'
                                                          )[0:6])
-                                           )
+                                           ).replace(tzinfo = UTC)
                       )
                       for t in data.findall('track')
                       ]
