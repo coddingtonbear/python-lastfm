@@ -39,7 +39,7 @@ SETUPTOOLS_METADATA = dict(
 )
 
 import sys
-if sys.version_info.major == 2 and sys.version_info.minor < 5:
+if sys.version_info[0] == 2 and sys.version_info[1] < 5:
     SETUPTOOLS_METADATA['install_requires'].append('ElementTree')
     SETUPTOOLS_METADATA['install_requires'].append('cElementTree')
 
