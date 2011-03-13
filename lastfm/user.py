@@ -271,7 +271,10 @@ class User(LastfmBase):
                                                          t.findtext('date').strip(),
                                                          '%d %b %Y, %H:%M'
                                                          )[0:6])
-                                           ).replace(tzinfo = UTC)
+                                           ).replace(
+                                           tzinfo = UTC
+                                           ) if t.findtext('date') else datetime(*datetime.utcnow().timetuple()[0:6]).replace(tzinfo=UTC),
+                      now_playing = True if 'nowplaying' in t.attrib and t.attrib['nowplaying'] == 'true' else False
                       )
                       for t in data.findall('track')
                       ]

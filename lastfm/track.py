@@ -17,7 +17,7 @@ class Track(LastfmBase):
     class Meta(object):
         properties = ["id", "name", "mbid", "url", "duration",
             "artist", "image", "stats", "played_on", "loved_on",
-            "subject"]
+            "subject", "now_playing"]
         fillable_properties = ["streamable", "full_track",
             "album", "position", "wiki"]
         
@@ -39,13 +39,6 @@ class Track(LastfmBase):
                          summary = self._wiki.summary,
                          content = self._wiki.content
                         ) or None
-
-    @property
-    def now_playing(self):
-        if(datetime.utcnow().replace(tzinfo = UTC) - self.played_on).seconds < 300:
-            return True
-        else:
-            return False
     
     @property
     def wiki(self):
