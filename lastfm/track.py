@@ -39,6 +39,13 @@ class Track(LastfmBase):
                          summary = self._wiki.summary,
                          content = self._wiki.content
                         ) or None
+
+    @property
+    def now_playing(self):
+        if(datetime.utcnow().replace(tzinfo = UTC) - self.played_on).seconds < 300:
+            return True
+        else:
+            return False
     
     @property
     def wiki(self):
