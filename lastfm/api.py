@@ -815,14 +815,14 @@ else:
     from hashlib import md5
     def md5hash(string):
         return md5(string).hexdigest()
-    
-if sys.version_info >= (2, 5):
+   
+try:
     import xml.etree.cElementTree as ElementTree
-else:
+except ImportError:
     try:
         import cElementTree as ElementTree
     except ImportError:
         try:
             import ElementTree
         except ImportError:
-            raise LastfmError("Install ElementTree package for using python-lastfm")
+            raise ImportError("Install ElementTree package for using python-lastfm")

@@ -56,14 +56,13 @@ import StringIO
 import sys
 from lastfm.error import InvalidParametersError
 
-if sys.version_info >= (2, 5):
+try:
     import xml.etree.cElementTree as ElementTree
-else:
+except ImportError:
     try:
         import cElementTree as ElementTree
     except ImportError:
         try:
             import ElementTree
         except ImportError:
-            from error import LastfmError
-            raise LastfmError("Install ElementTree package for using python-lastfm")
+            raise ImportError("Install ElementTree package for using python-lastfm")
