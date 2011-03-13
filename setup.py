@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 
 __author__ = "Abhinav Sarkar <abhinav@abhinavsarkar.net>"
-__version__ = "0.2"
+__version__ = "0.21"
 __license__ = "GNU Lesser General Public License"
 
 METADATA = dict(
 	name='lastfm',
-	version='0.2',
+	version='0.21',
 	description="a pure python interface to the Last.fm Webservices API",
 	long_description="""a pure python interface to the Last.fm Webservices API version 2.0,
 located at http://ws.audioscrobbler.com/2.0/ .""",
 	author="Abhinav Sarkar",
 	author_email="abhinav.sarkar@gmail.com",
-	maintainer="Abhinav Sarkar",
-	maintainer_email="abhinav.sarkar@gmail.com",
-	url="http://python-lastfm.googlecode.com/svn/trunk/dist/",
-	packages=['lastfm'],
+	maintainer="Adam Coddington",
+	maintainer_email="me@adamcoddington.net",
+	url="http://bitbucket.org/latestrevision/python-lastfm",
+	packages=['lastfm', 'lastfm.mixin', 'lastfm.util',],
     package_data = {'doc':['*.txt', '*.htm', '*.css', '*.js', '*.png']},
 	license="GNU Lesser General Public License",
 	keywords="audioscrobbler webservice api last.fm",
@@ -39,7 +39,7 @@ SETUPTOOLS_METADATA = dict(
 )
 
 import sys
-if sys.version < '2.5':
+if sys.version_info.major == 2 and sys.version_info.minor < 5:
     SETUPTOOLS_METADATA['install_requires'].append('ElementTree')
     SETUPTOOLS_METADATA['install_requires'].append('cElementTree')
 
