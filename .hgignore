@@ -1,0 +1,4 @@
+.*\.pyc
+build/.*
+dist/.*
+lastfm.egg.info/.*

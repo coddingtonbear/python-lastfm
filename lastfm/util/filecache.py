@@ -7,6 +7,7 @@ __license__ = "GNU Lesser General Public License"
 __package__ = "lastfm.util"
 
 import sys
+import pwd
 if sys.version < '2.6':
     import md5
     def md5hash(string):
@@ -73,7 +74,7 @@ class FileCache(object):
         return os.getenv('USER') or \
             os.getenv('LOGNAME') or \
             os.getenv('USERNAME') or \
-            os.getlogin() or \
+            pwd.getpwuid(os.getuid())[0] or \
             'nobody'
 
     def _GetTmpCachePath(self):
