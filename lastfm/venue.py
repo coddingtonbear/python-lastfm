@@ -8,6 +8,7 @@ __package__ = "lastfm"
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
 from lastfm.decorators import cached_property, depaginate
+from lastfm.util import safe_int, safe_float
 
 @mixin("crawlable", "searchable", "cacheable", "property_adder")
 class Venue(LastfmBase):
@@ -41,7 +42,7 @@ class Venue(LastfmBase):
             params.update({'page': page})
 
         data = self._api._fetch_data(params).find('events')
-        total_pages = int(data.attrib['totalPages'])
+        total_pages = safe_int(data.attrib['totalPages'])
         yield total_pages
 
         for e in data.findall('event'):
@@ -74,7 +75,7 @@ class Venue(LastfmBase):
         
         return Venue(
                      api,
-                     id = int(venue.findtext('id')),
+                     id = safe_int(venue.findtext('id')),
                      name = venue.findtext('name'),
                      location = Location(
                                          api,
@@ -85,8 +86,8 @@ class Venue(LastfmBase):
                                             ),
                                          street = venue.findtext('location/street'),
                                          postal_code = venue.findtext('location/postalcode'),
-                                         latitude = (latitude.strip()!= '') and float(latitude) or None,
-                                         longitude = (longitude.strip()!= '') and float(longitude) or None,
+                                         latitude = (latitude.strip()!= '') and safe_float(latitude) or None,
+                                         longitude = (longitude.strip()!= '') and safe_float(longitude) or None,
                                        ),
                      url = venue.findtext('url')
                      )

@@ -8,7 +8,7 @@ __package__ = "lastfm"
 from functools import reduce
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
-from lastfm.util import logging, UTC
+from lastfm.util import logging, UTC, safe_int, safe_float
 from operator import xor
 
 @mixin("cacheable", "property_adder")
@@ -31,8 +31,8 @@ class Chart(LastfmBase):
             if not (isinstance(start, datetime) and isinstance(end, datetime)):
                 raise InvalidParametersError("start and end must be datetime.datetime instances")
             params.update({
-                           'from': int(calendar.timegm(start.timetuple())),
-                           'to': int(calendar.timegm(end.timetuple()))
+                           'from': safe_int(calendar.timegm(start.timetuple())),
+                           'to': safe_int(calendar.timegm(end.timetuple()))
                            })
         return params
     
@@ -121,8 +121,8 @@ class WeeklyChart(Chart):
     def create_from_data(api, subject, data):
         return WeeklyChart(
                      subject = subject,
-                     start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
-                     end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC)
+                     start = datetime.utcfromtimestamp(safe_int(data.attrib['from'])).replace(tzinfo = UTC),
+                     end = datetime.utcfromtimestamp(safe_int(data.attrib['to'])).replace(tzinfo = UTC)
                      )
         
     @staticmethod
@@ -144,18 +144,18 @@ class WeeklyAlbumChart(AlbumChart, WeeklyChart):
     def create_from_data(api, subject, data):
         w = WeeklyChart(
                         subject = subject,
-                        start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
-                        end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
+                        start = datetime.utcfromtimestamp(safe_int(data.attrib['from'])).replace(tzinfo = UTC),
+                        end = datetime.utcfromtimestamp(safe_int(data.attrib['to'])).replace(tzinfo = UTC),
                         )
         return WeeklyAlbumChart(
             subject = subject,
-            start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
-            end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
+            start = datetime.utcfromtimestamp(safe_int(data.attrib['from'])).replace(tzinfo = UTC),
+            end = datetime.utcfromtimestamp(safe_int(data.attrib['to'])).replace(tzinfo = UTC),
             stats = Stats(
                 subject = subject,
                 playcount = reduce(
                     lambda x,y:(
-                        x + int(y.findtext('playcount'))
+                        x + safe_int(y.findtext('playcount'))
                     ),
                     data.findall('album'),
                     0
@@ -175,8 +175,8 @@ class WeeklyAlbumChart(AlbumChart, WeeklyChart):
                           ),
                       stats = Stats(
                           subject = a.findtext('name'),
-                          rank = int(a.attrib['rank']),
-                          playcount = int(a.findtext('playcount')),
+                          rank = safe_int(a.attrib['rank']),
+                          playcount = safe_int(a.findtext('playcount')),
                           ),
                       url = a.findtext('url'),
                       )
@@ -190,21 +190,21 @@ class WeeklyArtistChart(ArtistChart, WeeklyChart):
     def create_from_data(api, subject, data):
         w = WeeklyChart(
                         subject = subject,
-                        start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
-                        end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
+                        start = datetime.utcfromtimestamp(safe_int(data.attrib['from'])).replace(tzinfo = UTC),
+                        end = datetime.utcfromtimestamp(safe_int(data.attrib['to'])).replace(tzinfo = UTC),
                         )
         count_attribute = data.find('artist').findtext('playcount') and 'playcount' or 'weight'
         def get_count_attribute(artist):
-            return {count_attribute: int(eval(artist.findtext(count_attribute)))}
+            return {count_attribute: safe_int(eval(artist.findtext(count_attribute)))}
         def get_count_attribute_sum(artists):
             return {count_attribute: reduce(
-                        lambda x, y:(x + int(eval(y.findtext(count_attribute)))), artists, 0
+                        lambda x, y:(x + safe_int(eval(y.findtext(count_attribute)))), artists, 0
                     )}
             
         return WeeklyArtistChart(
             subject = subject,
-            start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
-            end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
+            start = datetime.utcfromtimestamp(safe_int(data.attrib['from'])).replace(tzinfo = UTC),
+            end = datetime.utcfromtimestamp(safe_int(data.attrib['to'])).replace(tzinfo = UTC),
             stats = Stats(
                           subject = subject,
                           **get_count_attribute_sum(data.findall('artist'))
@@ -217,7 +217,7 @@ class WeeklyArtistChart(ArtistChart, WeeklyChart):
                             mbid = a.findtext('mbid'),
                             stats = Stats(
                                           subject = a.findtext('name'),
-                                          rank = int(a.attrib['rank']),
+                                          rank = safe_int(a.attrib['rank']),
                                           **get_count_attribute(a)
                                           ),
                             url = a.findtext('url'),
@@ -232,18 +232,18 @@ class WeeklyTrackChart(TrackChart, WeeklyChart):
     def create_from_data(api, subject, data):
         w = WeeklyChart(
             subject = subject,
-            start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
-            end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
+            start = datetime.utcfromtimestamp(safe_int(data.attrib['from'])).replace(tzinfo = UTC),
+            end = datetime.utcfromtimestamp(safe_int(data.attrib['to'])).replace(tzinfo = UTC),
             )
         return WeeklyTrackChart(
             subject = subject,
-            start = datetime.utcfromtimestamp(int(data.attrib['from'])).replace(tzinfo = UTC),
-            end = datetime.utcfromtimestamp(int(data.attrib['to'])).replace(tzinfo = UTC),
+            start = datetime.utcfromtimestamp(safe_int(data.attrib['from'])).replace(tzinfo = UTC),
+            end = datetime.utcfromtimestamp(safe_int(data.attrib['to'])).replace(tzinfo = UTC),
             stats = Stats(
                 subject = subject,
                 playcount = reduce(
                                    lambda x,y:(
-                                               x + int(y.findtext('playcount'))
+                                               x + safe_int(y.findtext('playcount'))
                                                ),
                                    data.findall('track'),
                                    0
@@ -262,8 +262,8 @@ class WeeklyTrackChart(TrackChart, WeeklyChart):
                                             ),
                             stats = Stats(
                                           subject = t.findtext('name'),
-                                          rank = int(t.attrib['rank']),
-                                          playcount = int(t.findtext('playcount')),
+                                          rank = safe_int(t.attrib['rank']),
+                                          playcount = safe_int(t.findtext('playcount')),
                                           ),
                             url = t.findtext('url'),
                             )
@@ -299,23 +299,23 @@ class WeeklyTagChart(TagChart, WeeklyChart):
                 all_tags[tag] += 1
                 tag_count += 1
                 
-            artist_pp = artist.stats.playcount/float(wac.stats.playcount)
-            cumulative_pp = total_playcount/float(wac.stats.playcount)
+            artist_pp = artist.stats.playcount/safe_float(wac.stats.playcount)
+            cumulative_pp = total_playcount/safe_float(wac.stats.playcount)
             if (cumulative_pp > 0.75 or artist_pp < 0.01) and artist_count > 10:
                 break
         
         for artist in wac.artists[:artist_count]:
-            artist_pp = artist.stats.playcount/float(wac.stats.playcount)
-            tf = 1/float(max_tag_count)
+            artist_pp = artist.stats.playcount/safe_float(wac.stats.playcount)
+            tf = 1/safe_float(max_tag_count)
             tag_count = 0
             weighted_tfidfs = {}
             for tag in artist.top_tags:
                 if tag not in global_top_tags: continue
                 if tag_count >= max_tag_count: break            
                 
-                df = all_tags[tag]/float(artist_count)
+                df = all_tags[tag]/safe_float(artist_count)
                 tfidf = tf/df
-                weighted_tfidf = float(max_tag_count - tag_count)*tfidf
+                weighted_tfidf = safe_float(max_tag_count - tag_count)*tfidf
                 weighted_tfidfs[tag.name] = weighted_tfidf
                 tag_count += 1
                 
@@ -323,7 +323,7 @@ class WeeklyTagChart(TagChart, WeeklyChart):
             for tag in weighted_tfidfs:
                 tag_weights[tag] += weighted_tfidfs[tag]/sum_weighted_tfidfs*artist_pp            
             
-            artist_pp = artist.stats.playcount/float(wac.stats.playcount)
+            artist_pp = artist.stats.playcount/safe_float(wac.stats.playcount)
                 
         tag_weights_sum = sum(tag_weights.values())
         tag_weights = tag_weights.items()
@@ -348,13 +348,13 @@ class WeeklyTagChart(TagChart, WeeklyChart):
                            stats = Stats(
                                          subject = tag,
                                          rank = rank,
-                                         count = int(round(1000*weight/tag_weights_sum)),
+                                         count = safe_int(round(1000*weight/tag_weights_sum)),
                                          )
                            )
                      for (tag, weight, rank) in tag_weights
                      ]
            )
-        wtc._artist_spectrum_analyzed = 100*total_playcount/float(wac.stats.playcount)
+        wtc._artist_spectrum_analyzed = 100*total_playcount/safe_float(wac.stats.playcount)
         return wtc
 
 class RollingChart(Chart):
@@ -413,7 +413,7 @@ class RollingChart(Chart):
         items.sort(key = lambda a: a.stats.__dict__[count_attribute], reverse=True)
         for i,item in enumerate(items):
             item.stats._rank = i + 1
-            item.stats.__dict__[count_attribute] = int(item.stats.__dict__[count_attribute])
+            item.stats.__dict__[count_attribute] = safe_int(item.stats.__dict__[count_attribute])
         return globals()[
             "%sly%sChart" % (
                 period['name'].title().replace(' ',''),

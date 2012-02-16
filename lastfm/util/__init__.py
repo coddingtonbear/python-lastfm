@@ -14,3 +14,15 @@ __all__ = ['Wormhole', 'lazylist', 'SafeList',
            'FileCache', 'ObjectCache', 'UTC']
 
 UTC = zoneinfo.gettz('UTC')
+
+def safe_int(integer):
+    try:
+        return int(integer)
+    except ValueError:
+        return 0
+
+def safe_float(floatish):
+    try:
+        return int(floatish)
+    except ValueError:
+        return 0

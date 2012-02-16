@@ -7,7 +7,7 @@ __license__ = "GNU Lesser General Public License"
 __package__ = "lastfm"
 
 from threading import Lock
-from lastfm.util import Wormhole, logging, UTC
+from lastfm.util import Wormhole, logging, UTC, safe_int, safe_float
 from lastfm.decorators import cached_property, async_callback
 _lock = Lock()
 
@@ -672,7 +672,7 @@ class Api(object):
         with _lock:
             now = datetime.utcnow().replace(tzinfo = UTC)
             delta = now - self._last_fetch_time
-            delta = delta.seconds + float(delta.microseconds)/1000000
+            delta = delta.seconds + safe_float(delta.microseconds)/1000000
             if delta < Api.FETCH_INTERVAL:
                 time.sleep(Api.FETCH_INTERVAL - delta)
             url_data = opener.open(url, data).read()
@@ -777,7 +777,7 @@ class Api(object):
         except SyntaxError, e:
             raise OperationFailedError("Error in parsing XML: %s" % e)
         if data.get('status') != "ok":
-            code = int(data.find("error").get('code'))
+            code = safe_int(data.find("error").get('code'))
             message = data.findtext('error')
             if code in error_map.keys():
                 raise error_map[code](message, code)

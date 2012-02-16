@@ -8,7 +8,7 @@ __package__ = "lastfm"
 
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
-from lastfm.util import UTC
+from lastfm.util import UTC, safe_int, safe_float
 
 @mixin("crawlable", "shoutable", "sharable",
     "cacheable", "property_adder")
@@ -150,13 +150,13 @@ class Event(LastfmBase):
         
         return Event(
                      api,
-                     id = int(data.findtext('id')),
+                     id = safe_int(data.findtext('id')),
                      title = data.findtext('title'),
                      artists = [Artist(api, name = a.text) for a in data.findall('artists/artist')],
                      headliner = Artist(api, name = data.findtext('artists/headliner')),
                      venue = Venue(
                                    api,
-                                   id = int(data.findtext('venue/url').split('/')[-1]),
+                                   id = safe_int(data.findtext('venue/url').split('/')[-1]),
                                    name = data.findtext('venue/name'),
                                    location = Location(
                                        api,
@@ -167,8 +167,8 @@ class Event(LastfmBase):
                                             ),
                                        street = data.findtext('venue/location/street'),
                                        postal_code = data.findtext('venue/location/postalcode'),
-                                       latitude = (latitude.strip()!= '') and float(latitude) or None,
-                                       longitude = (longitude.strip()!= '') and float(longitude) or None,
+                                       latitude = (latitude.strip()!= '') and safe_float(latitude) or None,
+                                       longitude = (longitude.strip()!= '') and safe_float(longitude) or None,
                                        #timezone = data.findtext('venue/location/timezone')
                                        ),
                                    url = data.findtext('venue/url')
@@ -178,9 +178,9 @@ class Event(LastfmBase):
                      image = dict([(i.get('size'), i.text) for i in data.findall('image')]),
                      url = data.findtext('url'),
                      stats = Stats(
-                                   subject = int(data.findtext('id')),
-                                   attendance = int(data.findtext('attendance')),
-                                   reviews = int(data.findtext('reviews')),
+                                   subject = safe_int(data.findtext('id')),
+                                   attendance = safe_int(data.findtext('attendance')),
+                                   reviews = safe_int(data.findtext('reviews')),
                                    ),
                      tag = data.findtext('tag')
                     )

@@ -7,7 +7,7 @@ __package__ = "lastfm"
 
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
-from lastfm.util import UTC
+from lastfm.util import UTC, safe_int, safe_float
 from lastfm.decorators import cached_property, top_property
 
 @mixin("crawlable", "sharable", "taggable",
@@ -74,7 +74,7 @@ class Track(LastfmBase):
                       mbid = t.findtext('mbid'),
                       stats = Stats(
                                     subject = t.findtext('name'),
-                                    match = float(t.findtext('match'))
+                                    match = safe_float(t.findtext('match'))
                                     ),
                       streamable = (t.findtext('streamable') == '1'),
                       full_track = (t.find('streamable').attrib['fulltrack'] == '1'),
@@ -107,7 +107,7 @@ class Track(LastfmBase):
                      image = dict([(i.get('size'), i.text) for i in u.findall('image')]),
                      stats = Stats(
                                    subject = u.findtext('name'),
-                                   weight = int(u.findtext('weight'))
+                                   weight = safe_int(u.findtext('weight'))
                                    )
                      )
                 for u in data.findall('user')
@@ -136,7 +136,7 @@ class Track(LastfmBase):
                     url = t.findtext('url'),
                     stats = Stats(
                                   subject = t.findtext('name'),
-                                  count = int(t.findtext('count')),
+                                  count = safe_int(t.findtext('count')),
                                   )
                     )
                 for t in data.findall('tag')
@@ -201,7 +201,7 @@ class Track(LastfmBase):
                     url = track.findtext('url'),
                     stats = Stats(
                                   subject=track.findtext('name'),
-                                  listeners=int(track.findtext('listeners'))
+                                  listeners=safe_int(track.findtext('listeners'))
                                   ),
                     streamable = (track.findtext('streamable') == '1'),
                     full_track = (track.find('streamable').attrib['fulltrack'] == '1'),
@@ -218,18 +218,18 @@ class Track(LastfmBase):
 
     def _fill_info(self):
         data = Track._fetch_data(self._api, self.artist.name, self.name)
-        self._id = int(data.findtext('id'))
+        self._id = safe_int(data.findtext('id'))
         self._mbid = data.findtext('mbid')
         self._url = data.findtext('url')
-        self._duration = int(data.findtext('duration'))
+        self._duration = safe_int(data.findtext('duration'))
         self._streamable = (data.findtext('streamable') == '1')
         self._full_track = (data.find('streamable').attrib['fulltrack'] == '1')
 
         self._image = dict([(i.get('size'), i.text) for i in data.findall('image')])
         self._stats = Stats(
                        subject = self,
-                       listeners = int(data.findtext('listeners')),
-                       playcount = int(data.findtext('playcount')),
+                       listeners = safe_int(data.findtext('listeners')),
+                       playcount = safe_int(data.findtext('playcount')),
                        )
         self._artist = Artist(
                         self._api,
@@ -247,7 +247,7 @@ class Track(LastfmBase):
                                  image = dict([(i.get('size'), i.text) for i in data.findall('album/image')])
                                  )
             self._position = data.find('album').attrib['position'].strip() \
-                and int(data.find('album').attrib['position'])
+                and safe_int(data.find('album').attrib['position'])
         if data.find('wiki') is not None:
             self._wiki = Wiki(
                          self,

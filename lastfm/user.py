@@ -7,7 +7,7 @@ __package__ = "lastfm"
 
 from lastfm.base import LastfmBase
 from lastfm.mixin import chartable, mixin
-from lastfm.util import UTC
+from lastfm.util import UTC, safe_int, safe_float
 import lastfm.playlist
 from lastfm.decorators import (
     cached_property, top_property, authentication_required, depaginate)
@@ -93,7 +93,7 @@ class User(LastfmBase):
             params.update({'page': page})
 
         data = self._api._fetch_data(params).find('events')
-        total_pages = int(data.attrib['totalPages'])
+        total_pages = safe_int(data.attrib['totalPages'])
         yield total_pages
         for e in data.findall('event'):
             yield Event.create_from_data(self._api, e)
@@ -111,7 +111,7 @@ class User(LastfmBase):
         if page is not None:
             params.update({'page': page})
         data = self._api._fetch_data(params, sign = True, session = True).find('events')
-        total_pages = int(data.attrib['totalPages'])
+        total_pages = safe_int(data.attrib['totalPages'])
         yield total_pages
         for e in data.findall('event'):
             yield Event.create_from_data(self._api, e)
@@ -159,7 +159,7 @@ class User(LastfmBase):
                     url = u.findtext('url'),
                     stats = Stats(
                                   subject = u.findtext('name'),
-                                  match = u.findtext('match') and float(u.findtext('match')),
+                                  match = u.findtext('match') and safe_float(u.findtext('match')),
                                   ),
                 )
                 for u in data.findall('user')
@@ -183,7 +183,7 @@ class User(LastfmBase):
         return [
                 User.Playlist(
                               self._api,
-                              id = int(p.findtext('id')),
+                              id = safe_int(p.findtext('id')),
                               title = p.findtext('title'),
                               date = datetime(*(
                                                 time.strptime(
@@ -191,7 +191,7 @@ class User(LastfmBase):
                                                               '%Y-%m-%dT%H:%M:%S'
                                                               )[0:6])
                               ).replace(tzinfo = UTC),
-                              size = int(p.findtext('size')),
+                              size = safe_int(p.findtext('size')),
                               creator = self
                               )
                 for p in data.findall('playlist')
@@ -312,8 +312,8 @@ class User(LastfmBase):
                      image = dict([(i.get('size'), i.text) for i in a.findall('image')]),
                      stats = Stats(
                                    subject = a.findtext('name'),
-                                   playcount = a.findtext('playcount').strip() and int(a.findtext('playcount')),
-                                   rank = a.attrib['rank'].strip() and int(a.attrib['rank'])
+                                   playcount = a.findtext('playcount').strip() and safe_int(a.findtext('playcount')),
+                                   rank = a.attrib['rank'].strip() and safe_int(a.attrib['rank'])
                                    )
                      )
                 for a in data.findall('album')
@@ -343,8 +343,8 @@ class User(LastfmBase):
                        mbid = a.findtext('mbid'),
                        stats = Stats(
                                      subject = a.findtext('name'),
-                                     rank = a.attrib['rank'].strip() and int(a.attrib['rank']) or None,
-                                     playcount = a.findtext('playcount').strip() and int(a.findtext('playcount')) or None
+                                     rank = a.attrib['rank'].strip() and safe_int(a.attrib['rank']) or None,
+                                     playcount = a.findtext('playcount').strip() and safe_int(a.findtext('playcount')) or None
                                      ),
                        url = a.findtext('url'),
                        streamable = (a.findtext('streamable') == "1"),
@@ -372,7 +372,7 @@ class User(LastfmBase):
             params.update({'page': page})
             
         data = self._api._fetch_data(params, sign = True, session = True).find('recommendations')
-        total_pages = int(data.attrib['totalPages'])
+        total_pages = safe_int(data.attrib['totalPages'])
         yield total_pages
 
         for a in data.findall('artist'):
@@ -405,8 +405,8 @@ class User(LastfmBase):
                       mbid = t.findtext('mbid'),
                       stats = Stats(
                                     subject = t.findtext('name'),
-                                    rank = t.attrib['rank'].strip() and int(t.attrib['rank']) or None,
-                                    playcount = t.findtext('playcount') and int(t.findtext('playcount')) or None
+                                    rank = t.attrib['rank'].strip() and safe_int(t.attrib['rank']) or None,
+                                    playcount = t.findtext('playcount') and safe_int(t.findtext('playcount')) or None
                                     ),
                       streamable = (t.findtext('streamable') == '1'),
                       full_track = (t.find('streamable').attrib['fulltrack'] == '1'),
@@ -438,7 +438,7 @@ class User(LastfmBase):
                     url = t.findtext('url'),
                     stats = Stats(
                                   subject = t.findtext('name'),
-                                  count = int(t.findtext('count'))
+                                  count = safe_int(t.findtext('count'))
                                   )
                     )
                 for t in data.findall('tag')
@@ -489,7 +489,7 @@ class User(LastfmBase):
             )
         user._language = data.findtext('lang')
         user._country = Country(api, name = Country.ISO_CODES[data.findtext('country')])
-        user._age = int(data.findtext('age'))
+        user._age = safe_int(data.findtext('age'))
         user._gender = data.findtext('gender')
         user._subscriber = (data.findtext('subscriber') == "1")
         user._stats = Stats(subject = user, playcount = data.findtext('playcount'))
@@ -596,7 +596,7 @@ class User(LastfmBase):
 
             try:
                 data = self._api._fetch_data(params).find('albums')            
-                total_pages = int(data.attrib['totalPages'])
+                total_pages = safe_int(data.attrib['totalPages'])
                 yield total_pages
     
                 for a in data.findall('album'):
@@ -616,7 +616,7 @@ class User(LastfmBase):
                                 image = dict([(i.get('size'), i.text) for i in a.findall('image')]),
                                 stats = Stats(
                                               subject = a.findtext('name'),
-                                              playcount = int(a.findtext('playcount')),
+                                              playcount = safe_int(a.findtext('playcount')),
                                               )
                                 )
             except LastfmError:
@@ -654,7 +654,7 @@ class User(LastfmBase):
 
             try:
                 data = self._api._fetch_data(params).find('artists')
-                total_pages = int(data.attrib['totalPages'])
+                total_pages = safe_int(data.attrib['totalPages'])
                 yield total_pages
                 
                 for a in data.findall('artist'):
@@ -665,8 +665,8 @@ class User(LastfmBase):
                                  mbid = a.findtext('mbid'),
                                  stats = Stats(
                                                subject = a.findtext('name'),
-                                               playcount = a.findtext('playcount') and int(a.findtext('playcount')) or None,
-                                               tagcount = a.findtext('tagcount') and int(a.findtext('tagcount')) or None
+                                               playcount = a.findtext('playcount') and safe_int(a.findtext('playcount')) or None,
+                                               tagcount = a.findtext('tagcount') and safe_int(a.findtext('tagcount')) or None
                                                ),
                                  url = a.findtext('url'),
                                  streamable = (a.findtext('streamable') == "1"),
@@ -699,7 +699,7 @@ class User(LastfmBase):
             
             try:
                 data = self._api._fetch_data(params).find('tracks')
-                total_pages = int(data.attrib['totalPages'])
+                total_pages = safe_int(data.attrib['totalPages'])
                 yield total_pages
                 
                 for t in data.findall('track'):
@@ -717,8 +717,8 @@ class User(LastfmBase):
                                 mbid = t.findtext('mbid'),
                                 stats = Stats(
                                               subject = t.findtext('name'),
-                                              playcount = t.findtext('playcount') and int(t.findtext('playcount')) or None,
-                                              tagcount = t.findtext('tagcount') and int(t.findtext('tagcount')) or None
+                                              playcount = t.findtext('playcount') and safe_int(t.findtext('playcount')) or None,
+                                              tagcount = t.findtext('tagcount') and safe_int(t.findtext('tagcount')) or None
                                               ),
                                 streamable = (t.findtext('streamable') == '1'),
                                 full_track = (t.find('streamable').attrib['fulltrack'] == '1'),

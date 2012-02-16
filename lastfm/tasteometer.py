@@ -5,6 +5,8 @@ __version__ = "0.2"
 __license__ = "GNU Lesser General Public License"
 __package__ = "lastfm"
 
+from lastfm.util import safe_int, safe_float
+
 class Tasteometer(object):
     """A class representing a tasteometer."""
     def __init__(self,
@@ -46,8 +48,8 @@ class Tasteometer(object):
             params.update({'limit': limit})
         data = api._fetch_data(params).find('comparison/result')
         return Tasteometer(
-                           score = float(data.findtext('score')),
-                           matches = int(data.find('artists').attrib['matches']),
+                           score = safe_float(data.findtext('score')),
+                           matches = safe_int(data.find('artists').attrib['matches']),
                            artists = [
                                       Artist(
                                               api,

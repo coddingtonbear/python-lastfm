@@ -8,7 +8,7 @@ __package__ = "lastfm"
 
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
-from lastfm.util import UTC
+from lastfm.util import UTC, safe_int, safe_float
 from lastfm.decorators import cached_property, top_property
 
 @mixin("crawlable", "shoutable", "sharable",
@@ -93,7 +93,7 @@ class Artist(LastfmBase):
                                  mbid = a.findtext('mbid'),
                                  stats = Stats(
                                                subject = a.findtext('name'),
-                                               match = float(a.findtext('match')),
+                                               match = safe_float(a.findtext('match')),
                                                ),
                                  url = 'http://' + a.findtext('url'),
                                  image = {'large': a.findtext('image')}
@@ -182,8 +182,8 @@ class Artist(LastfmBase):
                      image = dict([(i.get('size'), i.text) for i in a.findall('image')]),
                      stats = Stats(
                                    subject = a.findtext('name'),
-                                   playcount = int(a.findtext('playcount')),
-                                   rank = int(a.attrib['rank'])
+                                   playcount = safe_int(a.findtext('playcount')),
+                                   rank = safe_int(a.attrib['rank'])
                                    )
                      )
                 for a in data.findall('album')
@@ -214,7 +214,7 @@ class Artist(LastfmBase):
                      image = dict([(i.get('size'), i.text) for i in u.findall('image')]),
                      stats = Stats(
                                    subject = u.findtext('name'),
-                                   weight = int(u.findtext('weight'))
+                                   weight = safe_int(u.findtext('weight'))
                                    )
                      )
                 for u in data.findall('user')
@@ -244,8 +244,8 @@ class Artist(LastfmBase):
                       mbid = t.findtext('mbid'),
                       stats = Stats(
                                     subject = t.findtext('name'),
-                                    playcount = int(t.findtext('playcount')),
-                                    rank = int(t.attrib['rank'])
+                                    playcount = safe_int(t.findtext('playcount')),
+                                    rank = safe_int(t.attrib['rank'])
                                     ),
                       streamable = (t.findtext('streamable') == '1'),
                       full_track = (t.find('streamable').attrib['fulltrack'] == '1'),
@@ -324,8 +324,8 @@ class Artist(LastfmBase):
         if not self._stats:
             self._stats = Stats(
                              subject = self,
-                             listeners = int(data.findtext('stats/listeners')),
-                             playcount = int(data.findtext('stats/playcount'))
+                             listeners = safe_int(data.findtext('stats/listeners')),
+                             playcount = safe_int(data.findtext('stats/playcount'))
                              )
 #        self._similar = [
 #                          Artist(

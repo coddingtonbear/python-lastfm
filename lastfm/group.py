@@ -9,6 +9,7 @@ __package__ = "lastfm"
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin, chartable
 from lastfm.decorators import cached_property, depaginate
+from lastfm.util import safe_int
 
 @chartable('album', 'artist', 'track', 'tag')
 @mixin("cacheable", "property_adder")
@@ -47,7 +48,7 @@ class Group(LastfmBase):
         if page is not None:
             params.update({'page': page})
         data = self._api._fetch_data(params).find('members')
-        total_pages = int(data.attrib['totalPages'])
+        total_pages = safe_int(data.attrib['totalPages'])
         yield total_pages
         for u in data.findall('user'):
             yield User(

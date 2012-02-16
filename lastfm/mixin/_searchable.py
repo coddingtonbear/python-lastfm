@@ -6,6 +6,7 @@ __license__ = "GNU Lesser General Public License"
 __package__ = "lastfm.mixin"
 
 from lastfm.decorators import depaginate
+from lastfm.util import safe_int
 
 def searchable(cls):
     @classmethod
@@ -32,8 +33,8 @@ def searchable(cls):
             params.update({'page': page})
         
         data = api._fetch_data(params).find('results')
-        total_pages = int(data.findtext("{%s}totalResults" % Api.SEARCH_XMLNS))/ \
-                            int(data.findtext("{%s}itemsPerPage" % Api.SEARCH_XMLNS)) + 1
+        total_pages = safe_int(data.findtext("{%s}totalResults" % Api.SEARCH_XMLNS))/ \
+                            safe_int(data.findtext("{%s}itemsPerPage" % Api.SEARCH_XMLNS)) + 1
         yield total_pages
         for a in data.findall('%smatches/%s'%(cls_name, cls_name)):
             yield cls._search_yield_func(api, a)

@@ -8,6 +8,7 @@ __package__ = "lastfm"
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin, chartable
 from lastfm.decorators import cached_property, top_property
+from lastfm.util import safe_int
 
 @chartable("artist")
 @mixin("crawlable", "searchable", "cacheable", "property_adder")
@@ -71,8 +72,8 @@ class Tag(LastfmBase):
                       image = dict([(i.get('size'), i.text) for i in a.findall('image')]),
                       stats = Stats(
                                     subject = a.findtext('name'),
-                                    tagcount = a.findtext('tagcount') and int(a.findtext('tagcount')) or None,
-                                    rank = a.attrib['rank'].strip() and int(a.attrib['rank']) or None
+                                    tagcount = a.findtext('tagcount') and safe_int(a.findtext('tagcount')) or None,
+                                    rank = a.attrib['rank'].strip() and safe_int(a.attrib['rank']) or None
                                     )
                       )
                 for a in data.findall('album')
@@ -96,8 +97,8 @@ class Tag(LastfmBase):
                        mbid = a.findtext('mbid'),
                        stats = Stats(
                                      subject = a.findtext('name'),
-                                     rank = a.attrib['rank'].strip() and int(a.attrib['rank']) or None,
-                                     tagcount = a.findtext('tagcount') and int(a.findtext('tagcount')) or None
+                                     rank = a.attrib['rank'].strip() and safe_int(a.attrib['rank']) or None,
+                                     tagcount = a.findtext('tagcount') and safe_int(a.findtext('tagcount')) or None
                                      ),
                        url = a.findtext('url'),
                        streamable = (a.findtext('streamable') == "1"),
@@ -131,8 +132,8 @@ class Tag(LastfmBase):
                       mbid = t.findtext('mbid'),
                       stats = Stats(
                                     subject = t.findtext('name'),
-                                    rank = t.attrib['rank'].strip() and int(t.attrib['rank']) or None,
-                                    tagcount = t.findtext('tagcount') and int(t.findtext('tagcount')) or None
+                                    rank = t.attrib['rank'].strip() and safe_int(t.attrib['rank']) or None,
+                                    tagcount = t.findtext('tagcount') and safe_int(t.findtext('tagcount')) or None
                                     ),
                       streamable = (t.findtext('streamable') == '1'),
                       full_track = (t.find('streamable').attrib['fulltrack'] == '1'),
@@ -162,7 +163,7 @@ class Tag(LastfmBase):
                     url = t.findtext('url'),
                     stats = Stats(
                                   subject = t.findtext('name'),
-                                  count = int(t.findtext('count')),
+                                  count = safe_int(t.findtext('count')),
                                   )
                     )
                 for t in data.findall('tag')
@@ -189,7 +190,7 @@ class Tag(LastfmBase):
                    url = tag.findtext('url'),
                    stats = Stats(
                                  subject = tag.findtext('name'),
-                                 count = int(tag.findtext('count')),
+                                 count = safe_int(tag.findtext('count')),
                                  )
                     )
 

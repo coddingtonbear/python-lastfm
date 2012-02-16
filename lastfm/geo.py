@@ -10,6 +10,7 @@ from functools import reduce
 from lastfm.base import LastfmBase
 from lastfm.mixin import mixin
 from lastfm.decorators import cached_property, top_property, depaginate
+from lastfm.util import safe_int
 
 class Geo(object):
     """A class representing an geographic location"""
@@ -58,7 +59,7 @@ class Geo(object):
             params.update({'page': page})
             
         data = api._fetch_data(params).find('events')
-        total_pages = int(data.attrib['totalpages'])
+        total_pages = safe_int(data.attrib['totalpages'])
         yield total_pages
         
         for e in data.findall('event'):
@@ -89,8 +90,8 @@ class Geo(object):
                        mbid = a.findtext('mbid'),
                        stats = Stats(
                                      subject = a.findtext('name'),
-                                     rank = int(a.attrib['rank']),
-                                     playcount = int(a.findtext('playcount'))
+                                     rank = safe_int(a.attrib['rank']),
+                                     playcount = safe_int(a.findtext('playcount'))
                                      ),
                        url = 'http://' + a.findtext('url'),
                        image = {'large': a.findtext('image')}
@@ -135,8 +136,8 @@ class Geo(object):
                                        ),
                        stats = Stats(
                                      subject = t.findtext('name'),
-                                     rank = int(t.attrib['rank']),
-                                     playcount = int(t.findtext('playcount'))
+                                     rank = safe_int(t.attrib['rank']),
+                                     playcount = safe_int(t.findtext('playcount'))
                                      ),
                        streamable = (t.findtext('streamable') == '1'),
                        full_track = (t.find('streamable').attrib['fulltrack'] == '1'),
